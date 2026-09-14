@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# 릴리즈 서명 (절대 커밋 금지 — 분실 시 앱 업데이트 불가)
+/android/key.properties
+/android/*.jks
+/android/*.keystore
