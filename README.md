@@ -59,9 +59,8 @@ Java 의 AF_UNIX 소켓이 `%TEMP%` 아래에서 실패해 Gradle 이 "Unable to
 
 ### 3. Android 출시
 - [ ] `flutter doctor --android-licenses` 로 라이선스 동의
-- [ ] 릴리즈 서명 키 생성: `keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
-- [ ] `android/key.properties` 작성 + `build.gradle.kts` 의 `signingConfig` 를 release 키로 교체
-- [ ] 앱 아이콘 교체 (`flutter_launcher_icons` 패키지 권장)
+- [x] 릴리즈 서명 키: `android/upload-keystore.jks` + `android/key.properties` (git 제외 — **반드시 백업**)
+- [x] 앱 아이콘: `tool/make_icon.py` → `dart run flutter_launcher_icons`
 - [ ] `flutter build appbundle --release` → `.aab` 업로드
 - [ ] Google Play Console 개발자 등록 ($25, 1회)
 - [ ] 스토어 등록 정보: 스크린샷(최소 2장), 512px 아이콘, 1024x500 배너, 설명, 데이터 보안 양식
