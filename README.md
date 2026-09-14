@@ -53,7 +53,7 @@ Java 의 AF_UNIX 소켓이 `%TEMP%` 아래에서 실패해 Gradle 이 "Unable to
 - [ ] AdMob 결제 정보 + 세금 정보 입력 (첫 수익 $100 도달 시 지급)
 
 ### 2. 개인정보 / 정책
-- [ ] 개인정보처리방침 URL 준비 (AdMob·스토어 모두 필수). 무료 생성기 사용 가능.
+- [x] 개인정보처리방침: https://junshiva5732.github.io/daily_fortune/privacy-policy.html (원본 `docs/privacy-policy.html`, GitHub Pages)
 - [ ] iOS: ATT(앱 추적 투명성) 팝업 — `Info.plist` 에 문구는 넣어둠. 필요 시 `app_tracking_transparency` 패키지로 요청.
 - [ ] EU 대상이면 UMP(동의 메시지) 설정 — `google_mobile_ads` 의 `ConsentInformation` API.
 
