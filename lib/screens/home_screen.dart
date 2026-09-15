@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../ads/ad_manager.dart';
 import '../services/fortune_service.dart';
+import '../services/notification_service.dart';
 import '../widgets/banner_ad_widget.dart';
 import '../widgets/star_rating.dart';
 import 'detail_screen.dart';
 import 'settings_screen.dart';
+import 'share_card_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final FortuneService service;
-  const HomeScreen({super.key, required this.service});
+  final NotificationService notifications;
+  const HomeScreen({super.key, required this.service, required this.notifications});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -24,11 +26,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _refresh();
+    _setupNotifications();
   }
 
   void _refresh() {
     final now = DateTime.now();
     _fortune = widget.service.fortuneFor(DateTime(now.year, now.month, now.day));
+  }
+
+  /// 첫 홈 진입 시 알림 권한을 묻고, 앞으로 7일치 알림을 (다시) 예약한다.
+  Future<void> _setupNotifications() async {
+    final n = widget.notifications;
+    if (!n.enabled) return;
+    final granted = await n.requestPermission();
+    if (granted) await n.reschedule(widget.service);
   }
 
   Future<void> _openDetail() async {
@@ -40,27 +51,29 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (_) => DetailScreen(service: widget.service, fortune: _fortune),
         ),
       );
-      // 상세 화면에서 "다시 뽑기"를 했을 수 있으니 갱신.
+      // 상세 화면에서 "다시 뽑기"를 했을 수 있으니 갱신 + 알림 본문도 갱신.
       if (mounted) setState(_refresh);
+      widget.notifications.reschedule(widget.service);
     });
   }
 
   Future<void> _openSettings() async {
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => SettingsScreen(service: widget.service)),
+      MaterialPageRoute(
+        builder: (_) => SettingsScreen(
+          service: widget.service,
+          notifications: widget.notifications,
+        ),
+      ),
     );
     if (mounted) setState(_refresh);
+    widget.notifications.reschedule(widget.service);
   }
 
   void _share() {
-    final f = _fortune;
-    final date = DateFormat('M월 d일').format(f.date);
-    final text = '📅 $date 오늘의 운세 (${f.zodiacName}띠)\n'
-        '${'⭐' * f.overallScore} 운세 지수 ${f.percent}점\n\n'
-        '${f.byCategory['총운']!.text}\n\n'
-        '🍀 행운의 숫자 ${f.luckyNumber} · ${f.luckyColor} · ${f.luckyItem}\n\n'
-        '"${f.quote.text}" - ${f.quote.author}';
-    SharePlus.instance.share(ShareParams(text: text));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => ShareCardScreen(fortune: _fortune)),
+    );
   }
 
   @override

@@ -2,6 +2,7 @@
 // 실행: dart run tool/find_lucky_birthdate.dart
 import 'dart:math';
 
+// ignore_for_file: avoid_print, avoid_relative_lib_imports
 import '../lib/data/fortunes.dart';
 
 int stableHash(List<int> parts) =>

@@ -14,9 +14,11 @@ lib/
   data/fortunes.dart           운세 문구(5개 카테고리), 띠, 행운 아이템
   data/quotes.dart             명언 목록
   services/fortune_service.dart 날짜+생년월일 시드 → 결정적 운세, 리롤 카운터
-  screens/home_screen.dart     홈 (운세 지수·행운 아이템·명언·공유)
+  services/notification_service.dart 매일 아침 알림 (7일치 개별 예약, 앱 열 때마다 갱신)
+  screens/home_screen.dart     홈 (운세 지수·행운 아이템·명언)
   screens/detail_screen.dart   카테고리별 상세 + 보상형 광고 리롤
-  screens/settings_screen.dart 생년월일 설정 (첫 실행 온보딩 겸용)
+  screens/share_card_screen.dart 이미지 카드 공유 (RepaintBoundary → PNG)
+  screens/settings_screen.dart 생년월일·알림 설정 (첫 실행 온보딩 겸용, 건너뛰기 불가)
 ```
 
 ## 광고 노출 지점
@@ -72,6 +74,7 @@ Java 의 AF_UNIX 소켓이 `%TEMP%` 아래에서 실패해 Gradle 이 "Unable to
 - [ ] 심사 시 광고 사용 여부 "예" 표시
 
 ### 5. 출시 후
-- [ ] 운세 문구 수 늘리기 (현재 카테고리당 11~12개, 최소 30개 권장)
-- [ ] 푸시 알림(매일 아침 "오늘의 운세 도착") — 리텐션 핵심
-- [ ] 위젯 / 공유 이미지 카드 등 확장
+- [x] 운세 문구 카테고리당 31~33개, 명언 82개
+- [x] 매일 아침 알림 (설정에서 시간 변경·끄기 가능)
+- [x] 공유 이미지 카드
+- [ ] 홈 위젯, 다국어 등 확장
