@@ -11,11 +11,12 @@ import 'services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
   // 광고 SDK 초기화는 앱 표시를 막지 않도록 기다리지 않는다.
-  AdManager.instance.init();
+  AdManager.instance.init(prefs);
   await initializeDateFormatting('ko');
-  final service = await FortuneService.create();
-  final notifications = NotificationService(await SharedPreferences.getInstance());
+  final service = FortuneService(prefs);
+  final notifications = NotificationService(prefs);
   runApp(FortuneApp(service: service, notifications: notifications));
 }
 

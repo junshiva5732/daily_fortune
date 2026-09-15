@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'ad_ids.dart';
 
@@ -10,9 +11,13 @@ class AdManager {
   AdManager._();
   static final AdManager instance = AdManager._();
 
-  InterstitialAd? _interstitial;
+  static const _kLastShownDate = 'interstitial_last_date';
 
-  Future<void> init() async {
+  InterstitialAd? _interstitial;
+  SharedPreferences? _prefs;
+
+  Future<void> init(SharedPreferences prefs) async {
+    _prefs = prefs;
     await MobileAds.instance.initialize();
     loadInterstitial();
   }
@@ -33,6 +38,22 @@ class AdManager {
     );
   }
 
+  String _today() {
+    final n = DateTime.now();
+    return '${n.year}-${n.month}-${n.day}';
+  }
+
+  /// 하루에 한 번만 전면 광고를 보여준다. 오늘 이미 봤거나 광고가 아직 로드되지
+  /// 않았으면 광고 없이 바로 [onDone]. (로드 전이면 "오늘 본 것"으로 치지 않으므로
+  /// 다음 진입 때 다시 시도한다.)
+  void showInterstitialOncePerDayThen(VoidCallback onDone) {
+    if (_prefs?.getString(_kLastShownDate) == _today()) {
+      onDone();
+      return;
+    }
+    showInterstitialThen(onDone);
+  }
+
   /// 로드된 전면 광고가 있으면 보여주고, 닫힌 뒤 [onDone] 을 호출한다.
   /// 아직 로드되지 않았으면 광고 없이 바로 [onDone].
   void showInterstitialThen(VoidCallback onDone) {
@@ -42,6 +63,7 @@ class AdManager {
       onDone();
       return;
     }
+    _prefs?.setString(_kLastShownDate, _today());
     _interstitial = null;
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {

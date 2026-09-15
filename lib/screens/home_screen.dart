@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../ads/ad_manager.dart';
 import '../services/fortune_service.dart';
 import '../services/notification_service.dart';
 import '../widgets/banner_ad_widget.dart';
@@ -42,9 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openDetail() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => DetailScreen(fortune: _fortune)),
-    );
+    // 하루 첫 상세 진입 때만 전면 광고. 닫히면(또는 광고 없으면) 상세 화면으로.
+    AdManager.instance.showInterstitialOncePerDayThen(() {
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => DetailScreen(fortune: _fortune)),
+      );
+    });
   }
 
   Future<void> _openSettings() async {
