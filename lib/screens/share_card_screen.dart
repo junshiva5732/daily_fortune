@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/lang.dart';
 import '../services/fortune_service.dart';
 import '../widgets/star_rating.dart';
 
@@ -36,9 +38,10 @@ class _ShareCardScreenState extends State<ShareCardScreen> {
       final file = File('${dir.path}/fortune_${widget.fortune.date.toIso8601String().substring(0, 10)}.png');
       await file.writeAsBytes(bytes!.buffer.asUint8List());
 
+      if (!mounted) return;
       await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path, mimeType: 'image/png')],
-        text: '오늘의 운세 ✨',
+        text: L10n.of(context).shareImageCaption,
       ));
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -47,20 +50,24 @@ class _ShareCardScreenState extends State<ShareCardScreen> {
 
   void _shareText() {
     final f = widget.fortune;
-    final date = DateFormat('M월 d일').format(f.date);
-    final text = '📅 $date 오늘의 운세 (${f.zodiacName}띠)\n'
-        '${'⭐' * f.overallScore} 운세 지수 ${f.percent}점\n\n'
-        '${f.byCategory['총운']!.text}\n\n'
-        '🍀 행운의 숫자 ${f.luckyNumber} · ${f.luckyColor} · ${f.luckyItem}\n\n'
-        '"${f.quote.text}" - ${f.quote.author}';
+    final l = L10n.of(context);
+    final lang = AppLang.of(context);
+    final date = DateFormat.MMMMd(lang).format(f.date);
+    final zodiac = l.zodiacLabel(f.zodiacAnimal.of(lang));
+    final text = '${l.shareTextHeader(date, zodiac)}\n'
+        '${'⭐' * f.overallScore} ${l.shareTextScore(f.percent)}\n\n'
+        '${f.overall.text.of(lang)}\n\n'
+        '${l.shareTextLucky(f.luckyNumber, f.luckyColor.of(lang), f.luckyItem.of(lang))}\n\n'
+        '"${f.quote.text.of(lang)}" - ${f.quote.author.of(lang)}';
     SharePlus.instance.share(ShareParams(text: text));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = L10n.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('공유하기')),
+      appBar: AppBar(title: Text(l.shareTitle)),
       body: Column(
         children: [
           Expanded(
@@ -87,16 +94,16 @@ class _ShareCardScreenState extends State<ShareCardScreen> {
                     icon: _busy
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.image_outlined),
-                    label: const Text('이미지로 공유'),
+                    label: Text(l.shareAsImage),
                   ),
                   const SizedBox(height: 8),
                   TextButton.icon(
                     onPressed: _shareText,
                     icon: const Icon(Icons.text_fields),
-                    label: const Text('텍스트로 공유'),
+                    label: Text(l.shareAsText),
                   ),
                   Text(
-                    '카카오톡, 인스타그램 스토리, 문자 등으로 보낼 수 있어요',
+                    l.shareHint,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
@@ -121,8 +128,10 @@ class _FortuneCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final f = fortune;
-    final date = DateFormat('yyyy년 M월 d일 EEEE', 'ko').format(f.date);
-    final total = f.byCategory['총운']!;
+    final l = L10n.of(context);
+    final lang = AppLang.of(context);
+    final date = DateFormat.yMMMMEEEEd(lang).format(f.date);
+    final total = f.overall;
 
     return Container(
       width: 340,
@@ -142,17 +151,17 @@ class _FortuneCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(f.zodiacEmoji, style: const TextStyle(fontSize: 52)),
           const SizedBox(height: 4),
-          Text('${f.zodiacName}띠 오늘의 운세',
+          Text(l.shareCardTitle(l.zodiacLabel(f.zodiacAnimal.of(lang))),
               style: const TextStyle(color: _cream, fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 16),
           Text('${f.percent}',
               style: const TextStyle(color: _cream, fontSize: 64, fontWeight: FontWeight.w800, height: 1)),
-          const Text('운세 지수', style: TextStyle(color: Color(0xFFD9CCFF), fontSize: 13)),
+          Text(l.fortuneIndex, style: const TextStyle(color: Color(0xFFD9CCFF), fontSize: 13)),
           const SizedBox(height: 10),
           StarRating(score: total.score, size: 26, color: _gold),
           const SizedBox(height: 16),
           Text(
-            total.text,
+            total.text.of(lang),
             textAlign: TextAlign.center,
             style: const TextStyle(color: _cream, fontSize: 15, height: 1.55),
           ),
@@ -164,29 +173,28 @@ class _FortuneCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _Lucky(label: '행운의 숫자', value: '${f.luckyNumber}'),
-                _Lucky(label: '행운의 색', value: f.luckyColor),
-                _Lucky(label: '아이템', value: f.luckyItem),
+                Expanded(child: _Lucky(label: l.luckyNumber, value: '${f.luckyNumber}')),
+                Expanded(child: _Lucky(label: l.luckyColor, value: f.luckyColor.of(lang))),
+                Expanded(child: _Lucky(label: l.luckyItem, value: f.luckyItem.of(lang))),
               ],
             ),
           ),
           const SizedBox(height: 20),
           Text(
-            '"${f.quote.text}"',
+            '"${f.quote.text.of(lang)}"',
             textAlign: TextAlign.center,
             style: const TextStyle(color: Color(0xFFE8E0FF), fontSize: 13, fontStyle: FontStyle.italic, height: 1.5),
           ),
           const SizedBox(height: 4),
-          Text('— ${f.quote.author}', style: const TextStyle(color: Color(0xFFB8A8E8), fontSize: 12)),
+          Text('— ${f.quote.author.of(lang)}', style: const TextStyle(color: Color(0xFFB8A8E8), fontSize: 12)),
           const SizedBox(height: 22),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Text('🌙', style: TextStyle(fontSize: 14)),
-              SizedBox(width: 6),
-              Text('오늘의 운세 앱', style: TextStyle(color: Color(0xFFB8A8E8), fontSize: 12)),
+            children: [
+              const Text('🌙', style: TextStyle(fontSize: 14)),
+              const SizedBox(width: 6),
+              Text(l.shareAppFooter, style: const TextStyle(color: Color(0xFFB8A8E8), fontSize: 12)),
             ],
           ),
         ],
@@ -204,9 +212,16 @@ class _Lucky extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFFB8A8E8), fontSize: 11)),
+        Text(label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Color(0xFFB8A8E8), fontSize: 10, height: 1.2)),
         const SizedBox(height: 2),
         Text(value,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: _FortuneCard._cream, fontSize: 15, fontWeight: FontWeight.bold)),
       ],
     );

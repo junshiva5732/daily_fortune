@@ -1,7 +1,7 @@
 # 오늘의 운세 (daily_fortune)
 
-생년월일 기반 오늘의 운세 + 명언 앱. AdMob 광고(배너 / 전면 / 보상형)로 수익화.
-Flutter 로 작성, Android + iOS 대상.
+생년월일 기반 오늘의 운세 + 명언 앱. AdMob 광고(배너 / 전면)로 수익화.
+Flutter 로 작성, Android + iOS 대상. 한국어 · 영어 · 일본어 · 중국어(간체) 지원.
 
 ## 구조
 
@@ -11,8 +11,10 @@ lib/
   ads/ad_ids.dart              AdMob 광고 단위 ID  ← 출시 전 교체
   ads/ad_manager.dart          전면 광고 로드/노출 싱글톤
   widgets/banner_ad_widget.dart 하단 적응형 배너
-  data/fortunes.dart           운세 문구(5개 카테고리), 띠, 행운 아이템
-  data/quotes.dart             명언 목록
+  l10n/app_*.arb               UI 문자열 (ko/en/ja/zh) → flutter gen-l10n 이 L10n 클래스 생성
+  l10n/lang.dart               시스템 언어 → 지원 언어 매핑 (미지원은 en)
+  data/fortunes.dart           운세 문구 157개 × 4개 언어, 띠, 행운 아이템 (T 클래스로 병기)
+  data/quotes.dart             명언 82개 × 4개 언어
   services/fortune_service.dart 날짜+생년월일 시드 → 결정적 운세, 리롤 카운터
   services/notification_service.dart 매일 아침 알림 (7일치 개별 예약, 앱 열 때마다 갱신)
   screens/home_screen.dart     홈 (운세 지수·행운 아이템·명언)
@@ -28,6 +30,16 @@ lib/
 | 홈·상세 하단 | 배너 | 항상 표시 |
 | "상세 운세 보기" 탭 | 전면 | **하루 첫 1회만** (`AdManager.showInterstitialOncePerDayThen`, 날짜를 prefs 에 기록) |
 | 설정 화면 "저장" | 전면 | 저장 시 매번 (하루 1회 카운트와 별개, 첫 실행 온보딩 제외) |
+
+## 다국어
+
+- UI 문자열: `lib/l10n/app_<lang>.arb` 에 키 추가 → `flutter gen-l10n` (빌드 시 자동 실행).
+- 콘텐츠: `T('한국어', 'English', '日本語', '中文')` 로 4개 언어를 한 항목에 병기. 운세는 인덱스로
+  뽑히므로 **한 언어만 추가/삭제하면 안 되고**, 항목 끝에만 추가할 것 (중간 삽입 시 그날 운세가 바뀜).
+- 새 언어 추가: `T` 에 필드 추가 + `FortuneData.supportedLangs` + ARB 파일 + 콘텐츠 번역.
+- 앱 이름: Android `res/values-<lang>/strings.xml`, iOS `ios/Runner/<lang>.lproj/InfoPlist.strings`
+  (iOS 는 Mac 에서 Xcode 로 lproj 파일을 프로젝트에 추가해야 번들에 포함됨).
+- 스토어 문구 번역: `store/listing_i18n.md`.
 
 ## 개발 빌드
 

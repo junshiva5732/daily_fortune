@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'ads/ad_manager.dart';
+import 'l10n/app_localizations.dart';
+import 'l10n/lang.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/fortune_service.dart';
@@ -14,7 +15,7 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   // 광고 SDK 초기화는 앱 표시를 막지 않도록 기다리지 않는다.
   AdManager.instance.init(prefs);
-  await initializeDateFormatting('ko');
+  await initializeDateFormatting();
   final service = FortuneService(prefs);
   final notifications = NotificationService(prefs);
   runApp(FortuneApp(service: service, notifications: notifications));
@@ -28,7 +29,6 @@ class FortuneApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '오늘의 운세',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: const Color(0xFF6750A4),
@@ -39,9 +39,10 @@ class FortuneApp extends StatelessWidget {
         brightness: Brightness.dark,
         useMaterial3: true,
       ),
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      supportedLocales: const [Locale('ko'), Locale('en')],
-      locale: const Locale('ko'),
+      onGenerateTitle: (context) => L10n.of(context).appTitle,
+      localizationsDelegates: L10n.localizationsDelegates,
+      supportedLocales: L10n.supportedLocales,
+      localeResolutionCallback: AppLang.resolve,
       home: _Root(service: service, notifications: notifications),
     );
   }

@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../l10n/app_localizations.dart';
+import '../l10n/lang.dart';
 import 'fortune_service.dart';
 
 /// 매일 아침 "오늘의 운세" 알림.
@@ -82,14 +85,19 @@ class NotificationService {
     await _plugin.cancelAll();
     if (!enabled) return;
 
+    final l = lookupL10n(Locale(AppLang.current));
     final now = tz.TZDateTime.now(tz.local);
     for (var i = 0; i < _days; i++) {
       final day = tz.TZDateTime(tz.local, now.year, now.month, now.day + i, hour, minute);
       if (day.isBefore(now)) continue; // 오늘 알림 시간이 이미 지났으면 건너뜀
 
       final f = fortune.fortuneFor(DateTime(day.year, day.month, day.day));
-      final title = '🌙 오늘의 운세가 도착했어요';
-      final body = '${f.zodiacName}띠 운세 지수 ${f.percent}점 · ${f.byCategory['총운']!.text}';
+      final title = l.notifTitle;
+      final body = l.notifBody(
+        l.zodiacLabel(f.zodiacAnimal.of(AppLang.current)),
+        f.percent,
+        f.overall.text.of(AppLang.current),
+      );
 
       await _plugin.zonedSchedule(
         i,
@@ -99,8 +107,8 @@ class NotificationService {
         NotificationDetails(
           android: AndroidNotificationDetails(
             _channelId,
-            '오늘의 운세 알림',
-            channelDescription: '매일 아침 오늘의 운세를 알려드립니다.',
+            l.notifChannelName,
+            channelDescription: l.notifChannelDesc,
             importance: Importance.defaultImportance,
             priority: Priority.defaultPriority,
             styleInformation: BigTextStyleInformation(body),

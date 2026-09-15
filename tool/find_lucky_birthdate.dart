@@ -17,7 +17,7 @@ void main() {
       for (var d = 1; d <= 28; d += 3) {
         final rng = Random(stableHash([date.year, date.month, date.day, y, m, d]));
         var total = 0;
-        for (final c in FortuneData.categories) {
+        for (final c in Category.values) {
           final list = FortuneData.lines[c]!;
           total += list[rng.nextInt(list.length)].score;
         }
@@ -27,7 +27,7 @@ void main() {
   }
   results.sort((a, b) => b.$1.compareTo(a.$1));
   for (final r in results.take(8)) {
-    final pct = (r.$1 / (FortuneData.categories.length * 5) * 100).round();
+    final pct = (r.$1 / (Category.values.length * 5) * 100).round();
     print('${r.$2.year}. ${r.$2.month}. ${r.$2.day}.  -> $pct점 (합계 ${r.$1}/25)');
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../data/fortunes.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/lang.dart';
 import '../services/fortune_service.dart';
 import '../widgets/banner_ad_widget.dart';
 import '../widgets/star_rating.dart';
@@ -10,35 +12,46 @@ class DetailScreen extends StatelessWidget {
   const DetailScreen({super.key, required this.fortune});
 
   static const _icons = {
-    '총운': Icons.wb_sunny_outlined,
-    '애정운': Icons.favorite_outline,
-    '금전운': Icons.savings_outlined,
-    '직장·학업운': Icons.work_outline,
-    '건강운': Icons.monitor_heart_outlined,
+    Category.overall: Icons.wb_sunny_outlined,
+    Category.love: Icons.favorite_outline,
+    Category.money: Icons.savings_outlined,
+    Category.work: Icons.work_outline,
+    Category.health: Icons.monitor_heart_outlined,
   };
+
+  static String categoryName(L10n l, Category c) => switch (c) {
+        Category.overall => l.catOverall,
+        Category.love => l.catLove,
+        Category.money => l.catMoney,
+        Category.work => l.catWork,
+        Category.health => l.catHealth,
+      };
 
   @override
   Widget build(BuildContext context) {
+    final l = L10n.of(context);
+    final lang = AppLang.of(context);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final f = fortune;
 
     return Scaffold(
-      appBar: AppBar(title: Text('${f.zodiacName}띠 상세 운세')),
+      appBar: AppBar(title: Text(l.detailTitle(l.zodiacLabel(f.zodiacAnimal.of(lang))))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
-          for (final category in FortuneData.categories) ...[
+          for (final category in Category.values) ...[
             _CategoryCard(
               icon: _icons[category]!,
-              title: category,
+              title: categoryName(l, category),
               line: f.byCategory[category]!,
+              lang: lang,
             ),
             const SizedBox(height: 12),
           ],
           const SizedBox(height: 8),
           Text(
-            '운세는 재미로 보는 콘텐츠예요. 오늘도 좋은 하루 보내세요 🌙',
+            l.detailFooter,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
           ),
@@ -53,7 +66,8 @@ class _CategoryCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final FortuneLine line;
-  const _CategoryCard({required this.icon, required this.title, required this.line});
+  final String lang;
+  const _CategoryCard({required this.icon, required this.title, required this.line, required this.lang});
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +86,15 @@ class _CategoryCard extends StatelessWidget {
               children: [
                 Icon(icon, color: cs.primary),
                 const SizedBox(width: 10),
-                Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                const Spacer(),
+                Expanded(
+                  child: Text(title,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                ),
                 StarRating(score: line.score, size: 18),
               ],
             ),
             const SizedBox(height: 12),
-            Text(line.text, style: theme.textTheme.bodyLarge?.copyWith(height: 1.5)),
+            Text(line.text.of(lang), style: theme.textTheme.bodyLarge?.copyWith(height: 1.5)),
           ],
         ),
       ),

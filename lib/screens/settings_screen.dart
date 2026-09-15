@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../ads/ad_manager.dart';
 import '../data/fortunes.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/lang.dart';
 import '../services/fortune_service.dart';
 import '../services/notification_service.dart';
 
@@ -39,8 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       initialDate: _birth,
       firstDate: DateTime(1920),
       lastDate: DateTime.now(),
-      locale: const Locale('ko'),
-      helpText: '생년월일 선택',
+      helpText: L10n.of(context).birthDatePickerHelp,
     );
     if (picked != null) setState(() => _birth = picked);
   }
@@ -49,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final picked = await showTimePicker(
       context: context,
       initialTime: _notifTime,
-      helpText: '알림 시간',
+      helpText: L10n.of(context).notificationTimeHelp,
     );
     if (picked != null) setState(() => _notifTime = picked);
   }
@@ -72,6 +73,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = L10n.of(context);
+    final lang = AppLang.of(context);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final zi = FortuneData.zodiacIndex(_birth.year);
@@ -79,7 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isOnboarding ? '시작하기' : '설정'),
+        title: Text(widget.isOnboarding ? l.onboardingTitle : l.settingsTitle),
         automaticallyImplyLeading: !widget.isOnboarding,
       ),
       body: ListView(
@@ -87,16 +90,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           if (widget.isOnboarding) ...[
             const SizedBox(height: 16),
-            Text('생년월일을 알려주세요',
+            Text(l.onboardingHeadline,
                 style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('띠와 생일을 기준으로 매일 다른 운세를 보여드려요.\n입력한 정보는 기기에만 저장됩니다.',
+            Text(l.onboardingBody,
                 style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 24),
           ],
 
           // ── 생년월일 ────────────────────────────────────────────
-          Text('생년월일', style: theme.textTheme.labelLarge?.copyWith(color: cs.onSurfaceVariant)),
+          Text(l.birthDateSection, style: theme.textTheme.labelLarge?.copyWith(color: cs.onSurfaceVariant)),
           const SizedBox(height: 8),
           Card(
             elevation: 0,
@@ -105,8 +108,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               leading: Text(FortuneData.zodiacEmoji[zi], style: const TextStyle(fontSize: 36)),
-              title: Text(DateFormat('yyyy년 M월 d일').format(_birth)),
-              subtitle: Text('${FortuneData.zodiacAnimals[zi]}띠'),
+              title: Text(DateFormat.yMMMMd(lang).format(_birth)),
+              subtitle: Text(l.zodiacLabel(FortuneData.zodiacAnimals[zi].of(lang))),
               trailing: const Icon(Icons.edit_calendar_outlined),
               onTap: _pickDate,
             ),
@@ -114,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 28),
 
           // ── 알림 ────────────────────────────────────────────────
-          Text('아침 알림', style: theme.textTheme.labelLarge?.copyWith(color: cs.onSurfaceVariant)),
+          Text(l.notificationSection, style: theme.textTheme.labelLarge?.copyWith(color: cs.onSurfaceVariant)),
           const SizedBox(height: 8),
           Card(
             elevation: 0,
@@ -125,8 +128,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SwitchListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                   secondary: const Icon(Icons.notifications_active_outlined),
-                  title: const Text('매일 운세 알림'),
-                  subtitle: const Text('오늘의 운세 지수와 총운을 알려드려요'),
+                  title: Text(l.notificationToggleTitle),
+                  subtitle: Text(l.notificationToggleSubtitle),
                   value: _notifOn,
                   onChanged: (v) => setState(() => _notifOn = v),
                 ),
@@ -134,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                     leading: const Icon(Icons.schedule_outlined),
-                    title: const Text('알림 시간'),
+                    title: Text(l.notificationTime),
                     trailing: Text(
                       _notifTime.format(context),
                       style: theme.textTheme.titleMedium?.copyWith(color: cs.primary),
@@ -149,7 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           FilledButton(
             onPressed: _save,
             style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-            child: Text(widget.isOnboarding ? '운세 보러 가기' : '저장'),
+            child: Text(widget.isOnboarding ? l.goSeeFortune : l.save),
           ),
         ],
       ),

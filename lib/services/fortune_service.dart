@@ -5,15 +5,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/fortunes.dart';
 import '../data/quotes.dart';
 
-/// 하루치 운세 결과.
+/// 하루치 운세 결과. 텍스트는 [T] 로 들고 있다가 화면에서 언어를 골라 쓴다.
 class DailyFortune {
   final DateTime date;
   final int zodiacIndex;
-  final Map<String, FortuneLine> byCategory;
+  final Map<Category, FortuneLine> byCategory;
   final int luckyNumber;
-  final String luckyColor;
-  final String luckyItem;
-  final String luckyDirection;
+  final T luckyColor;
+  final T luckyItem;
+  final T luckyDirection;
   final Quote quote;
 
   const DailyFortune({
@@ -27,11 +27,13 @@ class DailyFortune {
     required this.quote,
   });
 
-  String get zodiacName => FortuneData.zodiacAnimals[zodiacIndex];
+  T get zodiacAnimal => FortuneData.zodiacAnimals[zodiacIndex];
   String get zodiacEmoji => FortuneData.zodiacEmoji[zodiacIndex];
 
+  FortuneLine get overall => byCategory[Category.overall]!;
+
   /// 총운 점수 (별 개수).
-  int get overallScore => byCategory['총운']!.score;
+  int get overallScore => overall.score;
 
   /// 카테고리 평균으로 0~100 점수 산출.
   int get percent {
@@ -86,9 +88,8 @@ class FortuneService {
     ]);
     final rng = Random(seed);
 
-    final byCategory = <String, FortuneLine>{
-      for (final c in FortuneData.categories)
-        c: _pick(rng, FortuneData.lines[c]!),
+    final byCategory = <Category, FortuneLine>{
+      for (final c in Category.values) c: _pick(rng, FortuneData.lines[c]!),
     };
 
     return DailyFortune(

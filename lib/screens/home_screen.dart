@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../ads/ad_manager.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/lang.dart';
 import '../services/fortune_service.dart';
 import '../services/notification_service.dart';
 import '../widgets/banner_ad_widget.dart';
@@ -74,16 +76,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final f = _fortune;
+    final l = L10n.of(context);
+    final lang = AppLang.of(context);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final dateLabel = DateFormat('yyyy년 M월 d일 EEEE', 'ko').format(f.date);
+    final dateLabel = DateFormat.yMMMMEEEEd(lang).format(f.date);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('오늘의 운세'),
+        title: Text(l.appTitle),
         actions: [
-          IconButton(onPressed: _share, icon: const Icon(Icons.share_outlined), tooltip: '공유'),
-          IconButton(onPressed: _openSettings, icon: const Icon(Icons.settings_outlined), tooltip: '설정'),
+          IconButton(onPressed: _share, icon: const Icon(Icons.share_outlined), tooltip: l.shareTooltip),
+          IconButton(onPressed: _openSettings, icon: const Icon(Icons.settings_outlined), tooltip: l.settingsTooltip),
         ],
       ),
       body: ListView(
@@ -103,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(f.zodiacEmoji, style: const TextStyle(fontSize: 56)),
                   const SizedBox(height: 4),
-                  Text('${f.zodiacName}띠',
+                  Text(l.zodiacLabel(f.zodiacAnimal.of(lang)),
                       style: theme.textTheme.titleMedium?.copyWith(color: cs.onPrimaryContainer)),
                   const SizedBox(height: 16),
                   Text('${f.percent}',
@@ -112,13 +116,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: cs.onPrimaryContainer,
                         height: 1,
                       )),
-                  Text('운세 지수',
+                  Text(l.fortuneIndex,
                       style: theme.textTheme.labelLarge?.copyWith(color: cs.onPrimaryContainer)),
                   const SizedBox(height: 12),
                   StarRating(score: f.overallScore, size: 28),
                   const SizedBox(height: 16),
                   Text(
-                    f.byCategory['총운']!.text,
+                    f.overall.text.of(lang),
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge?.copyWith(color: cs.onPrimaryContainer, height: 1.5),
                   ),
@@ -131,17 +135,17 @@ class _HomeScreenState extends State<HomeScreen> {
           // ── 행운 아이템 ─────────────────────────────────────────
           Row(
             children: [
-              _LuckyTile(label: '행운의 숫자', value: '${f.luckyNumber}', icon: Icons.tag),
+              _LuckyTile(label: l.luckyNumber, value: '${f.luckyNumber}', icon: Icons.tag),
               const SizedBox(width: 10),
-              _LuckyTile(label: '행운의 색', value: f.luckyColor, icon: Icons.palette_outlined),
+              _LuckyTile(label: l.luckyColor, value: f.luckyColor.of(lang), icon: Icons.palette_outlined),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              _LuckyTile(label: '행운의 아이템', value: f.luckyItem, icon: Icons.card_giftcard_outlined),
+              _LuckyTile(label: l.luckyItem, value: f.luckyItem.of(lang), icon: Icons.card_giftcard_outlined),
               const SizedBox(width: 10),
-              _LuckyTile(label: '행운의 방향', value: f.luckyDirection, icon: Icons.explore_outlined),
+              _LuckyTile(label: l.luckyDirection, value: f.luckyDirection.of(lang), icon: Icons.explore_outlined),
             ],
           ),
           const SizedBox(height: 16),
@@ -150,12 +154,12 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: _openDetail,
             style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
             icon: const Icon(Icons.auto_awesome),
-            label: const Text('상세 운세 보기'),
+            label: Text(l.seeDetail),
           ),
           const SizedBox(height: 24),
 
           // ── 오늘의 명언 ─────────────────────────────────────────
-          Text('오늘의 명언', style: theme.textTheme.titleMedium),
+          Text(l.todaysQuote, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           Card(
             elevation: 0,
@@ -168,12 +172,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Icon(Icons.format_quote_rounded, color: cs.primary, size: 32),
                   const SizedBox(height: 8),
-                  Text(f.quote.text,
+                  Text(f.quote.text.of(lang),
                       style: theme.textTheme.titleMedium?.copyWith(height: 1.5)),
                   const SizedBox(height: 12),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Text('— ${f.quote.author}',
+                    child: Text('— ${f.quote.author.of(lang)}',
                         style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
                   ),
                 ],
@@ -213,7 +217,10 @@ class _LuckyTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(label, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-                  Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
