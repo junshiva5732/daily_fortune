@@ -44,13 +44,10 @@ class DailyFortune {
 /// 사용자 프로필 저장 + 날짜·생년월일 기반 결정적 운세 생성.
 ///
 /// 같은 날, 같은 생년월일이면 항상 같은 결과가 나온다(앱을 껐다 켜도 동일).
-/// "다시 뽑기"(보상형 광고)를 하면 그 날짜의 reroll 카운터가 올라가 결과가 바뀐다.
 class FortuneService {
   static const _kBirthYear = 'birth_year';
   static const _kBirthMonth = 'birth_month';
   static const _kBirthDay = 'birth_day';
-  static const _kRerollDate = 'reroll_date';
-  static const _kRerollCount = 'reroll_count';
 
   final SharedPreferences _prefs;
   FortuneService(this._prefs);
@@ -74,22 +71,6 @@ class FortuneService {
     await _prefs.setInt(_kBirthDay, date.day);
   }
 
-  // ------------------------------------------------------------- 리롤
-
-  String _dateKey(DateTime d) =>
-      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-
-  int rerollCount(DateTime date) {
-    if (_prefs.getString(_kRerollDate) != _dateKey(date)) return 0;
-    return _prefs.getInt(_kRerollCount) ?? 0;
-  }
-
-  Future<void> reroll(DateTime date) async {
-    final next = rerollCount(date) + 1;
-    await _prefs.setString(_kRerollDate, _dateKey(date));
-    await _prefs.setInt(_kRerollCount, next);
-  }
-
   // ------------------------------------------------------------- 생성
 
   /// 프로세스가 바뀌어도 같은 값을 내는 결정적 해시.
@@ -102,7 +83,6 @@ class FortuneService {
     final seed = _stableHash([
       date.year, date.month, date.day,
       birth.year, birth.month, birth.day,
-      rerollCount(date),
     ]);
     final rng = Random(seed);
 

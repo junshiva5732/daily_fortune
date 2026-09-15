@@ -79,7 +79,7 @@ shots = [
     ("s_home.png", "매일 아침 확인하는", "나만의 오늘 운세"),
     ("s_detail.png", "애정·금전·직장·건강", "5가지 운세를 한눈에"),
     ("s_home2.png", "행운의 숫자와 색,", "그리고 오늘의 명언"),
-    ("s_detail2.png", "마음에 안 들면", "운세 다시 뽑기"),
+    ("s_settings.png", "매일 아침 알림으로", "잊지 않고 확인"),
 ]
 for n, (fname, line1, line2) in enumerate(shots, start=1):
     bg = gradient(SW, SH).convert("RGBA")

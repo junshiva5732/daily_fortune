@@ -15,7 +15,7 @@ void main() {
   for (var y = 1970; y <= 2005; y++) {
     for (var m = 1; m <= 12; m++) {
       for (var d = 1; d <= 28; d += 3) {
-        final rng = Random(stableHash([date.year, date.month, date.day, y, m, d, 0]));
+        final rng = Random(stableHash([date.year, date.month, date.day, y, m, d]));
         var total = 0;
         for (final c in FortuneData.categories) {
           final list = FortuneData.lines[c]!;

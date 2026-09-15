@@ -17,7 +17,6 @@ class AdIds {
   static const _androidReal = _Ids(
     banner: 'ca-app-pub-7493209423244427/8757090824',
     interstitial: 'ca-app-pub-7493209423244427/2652690780',
-    rewarded: 'ca-app-pub-7493209423244427/1155776281',
   );
 
   // TODO(iOS): AdMob 에서 iOS 앱 등록 후 교체
@@ -27,12 +26,10 @@ class AdIds {
   static const _androidTest = _Ids(
     banner: 'ca-app-pub-3940256099942544/6300978111',
     interstitial: 'ca-app-pub-3940256099942544/1033173712',
-    rewarded: 'ca-app-pub-3940256099942544/5224354917',
   );
   static const _iosTest = _Ids(
     banner: 'ca-app-pub-3940256099942544/2934735716',
     interstitial: 'ca-app-pub-3940256099942544/4411468910',
-    rewarded: 'ca-app-pub-3940256099942544/1712485313',
   );
 
   static _Ids get _current {
@@ -42,12 +39,10 @@ class AdIds {
 
   static String get banner => _current.banner;
   static String get interstitial => _current.interstitial;
-  static String get rewarded => _current.rewarded;
 }
 
 class _Ids {
   final String banner;
   final String interstitial;
-  final String rewarded;
-  const _Ids({required this.banner, required this.interstitial, required this.rewarded});
+  const _Ids({required this.banner, required this.interstitial});
 }

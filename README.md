@@ -9,14 +9,14 @@ Flutter 로 작성, Android + iOS 대상.
 lib/
   main.dart                    앱 진입, 테마, 온보딩 분기
   ads/ad_ids.dart              AdMob 광고 단위 ID  ← 출시 전 교체
-  ads/ad_manager.dart          전면·보상형 광고 로드/노출 싱글톤
+  ads/ad_manager.dart          전면 광고 로드/노출 싱글톤
   widgets/banner_ad_widget.dart 하단 적응형 배너
   data/fortunes.dart           운세 문구(5개 카테고리), 띠, 행운 아이템
   data/quotes.dart             명언 목록
   services/fortune_service.dart 날짜+생년월일 시드 → 결정적 운세, 리롤 카운터
   services/notification_service.dart 매일 아침 알림 (7일치 개별 예약, 앱 열 때마다 갱신)
   screens/home_screen.dart     홈 (운세 지수·행운 아이템·명언)
-  screens/detail_screen.dart   카테고리별 상세 + 보상형 광고 리롤
+  screens/detail_screen.dart   카테고리별 상세
   screens/share_card_screen.dart 이미지 카드 공유 (RepaintBoundary → PNG)
   screens/settings_screen.dart 생년월일·알림 설정 (첫 실행 온보딩 겸용, 건너뛰기 불가)
 ```
@@ -26,8 +26,7 @@ lib/
 | 위치 | 종류 | 동작 |
 |---|---|---|
 | 홈·상세 하단 | 배너 | 항상 표시 |
-| "상세 운세 보기" 탭 | 전면 | 2번 진입마다 1회 (`AdManager.interstitialEvery`) |
-| "광고 보고 운세 다시 뽑기" | 보상형 | 끝까지 시청 시 운세 재생성 |
+| "상세 운세 보기" 탭 | 전면 | 탭할 때마다 (로드 안 됐으면 광고 없이 진입) |
 
 ## 개발 빌드
 
@@ -47,7 +46,7 @@ Java 의 AF_UNIX 소켓이 `%TEMP%` 아래에서 실패해 Gradle 이 "Unable to
 
 ### 1. AdMob
 - [ ] https://admob.google.com 에서 앱 등록 (Android, iOS 각각)
-- [ ] 광고 단위 3개 생성: 배너 / 전면 / 보상형 (플랫폼별 → 총 6개)
+- [x] 광고 단위 (Android): 배너 / 전면 — 보상형은 사용 안 함
 - [ ] `lib/ads/ad_ids.dart` 의 테스트 ID → 실제 ID 교체
 - [ ] `android/app/src/main/AndroidManifest.xml` 의 `APPLICATION_ID` 교체
 - [ ] `ios/Runner/Info.plist` 의 `GADApplicationIdentifier` 교체

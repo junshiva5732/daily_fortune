@@ -42,18 +42,13 @@ class _HomeScreenState extends State<HomeScreen> {
     if (granted) await n.reschedule(widget.service);
   }
 
-  Future<void> _openDetail() async {
-    // 전면 광고 → 닫히면 상세 화면 진입. 광고 없으면 바로 진입.
-    AdManager.instance.showInterstitialThen(() async {
+  void _openDetail() {
+    // 전면 광고 → 닫히면 상세 화면 진입. 광고가 아직 안 떴으면 바로 진입.
+    AdManager.instance.showInterstitialThen(() {
       if (!mounted) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => DetailScreen(service: widget.service, fortune: _fortune),
-        ),
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => DetailScreen(fortune: _fortune)),
       );
-      // 상세 화면에서 "다시 뽑기"를 했을 수 있으니 갱신 + 알림 본문도 갱신.
-      if (mounted) setState(_refresh);
-      widget.notifications.reschedule(widget.service);
     });
   }
 
