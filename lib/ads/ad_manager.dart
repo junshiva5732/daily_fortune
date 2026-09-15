@@ -43,27 +43,29 @@ class AdManager {
     return '${n.year}-${n.month}-${n.day}';
   }
 
-  /// 하루에 한 번만 전면 광고를 보여준다. 오늘 이미 봤거나 광고가 아직 로드되지
-  /// 않았으면 광고 없이 바로 [onDone]. (로드 전이면 "오늘 본 것"으로 치지 않으므로
-  /// 다음 진입 때 다시 시도한다.)
+  /// 하루에 한 번만 전면 광고를 보여준다 (상세 운세 보기용). 오늘 이미 봤거나
+  /// 광고가 아직 로드되지 않았으면 광고 없이 바로 [onDone]. (로드 전이면
+  /// "오늘 본 것"으로 치지 않으므로 다음 진입 때 다시 시도한다.)
   void showInterstitialOncePerDayThen(VoidCallback onDone) {
     if (_prefs?.getString(_kLastShownDate) == _today()) {
       onDone();
       return;
     }
-    showInterstitialThen(onDone);
+    _show(onDone, recordDay: true);
   }
 
-  /// 로드된 전면 광고가 있으면 보여주고, 닫힌 뒤 [onDone] 을 호출한다.
-  /// 아직 로드되지 않았으면 광고 없이 바로 [onDone].
-  void showInterstitialThen(VoidCallback onDone) {
+  /// 로드된 전면 광고가 있으면 매번 보여준다 (설정 저장용). 하루 1회 카운트와는
+  /// 무관하다. 아직 로드되지 않았으면 광고 없이 바로 [onDone].
+  void showInterstitialThen(VoidCallback onDone) => _show(onDone, recordDay: false);
+
+  void _show(VoidCallback onDone, {required bool recordDay}) {
     final ad = _interstitial;
     if (ad == null) {
       loadInterstitial(); // 다음 기회를 위해 다시 시도
       onDone();
       return;
     }
-    _prefs?.setString(_kLastShownDate, _today());
+    if (recordDay) _prefs?.setString(_kLastShownDate, _today());
     _interstitial = null;
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {

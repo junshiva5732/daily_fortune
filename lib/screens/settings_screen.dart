@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../ads/ad_manager.dart';
 import '../data/fortunes.dart';
 import '../services/fortune_service.dart';
 import '../services/notification_service.dart';
@@ -59,9 +60,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await widget.notifications.setTime(_notifTime.hour, _notifTime.minute);
     if (!mounted) return;
     if (widget.isOnboarding) {
+      // 첫 실행 온보딩에서는 광고 없이 바로 진입.
       widget.onSaved?.call();
     } else {
-      Navigator.of(context).pop();
+      // 설정 저장 시 전면 광고 → 닫히면 이전 화면으로.
+      AdManager.instance.showInterstitialThen(() {
+        if (mounted) Navigator.of(context).pop();
+      });
     }
   }
 
