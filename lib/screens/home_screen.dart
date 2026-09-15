@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../ads/ad_manager.dart';
 import '../services/fortune_service.dart';
 import '../services/notification_service.dart';
 import '../widgets/banner_ad_widget.dart';
@@ -43,13 +42,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openDetail() {
-    // 전면 광고 → 닫히면 상세 화면 진입. 광고가 아직 안 떴으면 바로 진입.
-    AdManager.instance.showInterstitialThen(() {
-      if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => DetailScreen(fortune: _fortune)),
-      );
-    });
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => DetailScreen(fortune: _fortune)),
+    );
   }
 
   Future<void> _openSettings() async {
